@@ -1,0 +1,31 @@
+{
+  "name": "jsstoni/router",
+  "description": "Router HTTP",
+  "keywords": [
+    "router",
+    "routing",
+    "route",
+    "php",
+    "url-handling",
+    "input-handler",
+    "routing-engine",
+    "request-handler"
+  ],
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "jsstoni",
+      "email": "jsstoniha@gmail.com"
+    }
+  ],
+  "require": {
+    "firebase/php-jwt": "^6.9",
+    "league/plates": "^3.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Route\\": "src/"
+    }
+  }
+}
