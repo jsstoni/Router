@@ -9,9 +9,11 @@ class HandleRequest
     private $params = array();
     private $contentType;
     private $method;
+    private $request;
 
     public function __construct()
     {
+        $this->request = new Request();
         $body = file_get_contents('php://input') ?: null;
         $this->contentType = $_SERVER['CONTENT_TYPE'] ?? '';
         $this->method = $_SERVER['REQUEST_METHOD'];
@@ -97,12 +99,11 @@ class HandleRequest
 
     public function getParams()
     {
-        $request = new Request();
-        $request->body = $this->body();
-        $request->query = $this->query();
-        $request->params = $this->params();
-        $request->files = $this->files();
-        $request->authorization = $this->getToken();
-        return $request;
+        $this->request->body = $this->body();
+        $this->request->query = $this->query();
+        $this->request->params = $this->params();
+        $this->request->files = $this->files();
+        $this->request->authorization = $this->getToken();
+        return $this->request;
     }
 }
