@@ -4,6 +4,7 @@ namespace Route;
 
 use League\Plates\Engine as Engine;
 use League\Plates\Extension\Asset as Asset;
+use LogicException;
 
 class Response
 {
@@ -44,10 +45,10 @@ class Response
             try {
                 echo $this->tplEngie->render($path, $data);
             } catch (\Exception $error) {
-                throw new \Exception("file '$path' not found in view");
+                throw new LogicException("file '$path' not found in view");
             }
         } else {
-            throw new \Exception("path for view application does not exist");
+            throw new LogicException("path for view application does not exist");
         }
     }
 }

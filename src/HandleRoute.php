@@ -4,6 +4,7 @@ namespace Route;
 
 use Route\HandleRequest;
 use Route\Response;
+use LogicException;
 
 class HandleRoute
 {
@@ -31,7 +32,7 @@ class HandleRoute
         $path = $this->currentGroup != '' ? ($path != '/' ? $this->currentGroup . $path : $this->currentGroup) : $path;
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $route['path'] === $path) {
-                throw new \Exception('Route already exists: ' . $method . ' ' . $path);
+                throw new LogicException('Route already exists: ' . $method . ' ' . $path);
             }
         }
         $this->routes[] = [
@@ -47,7 +48,7 @@ class HandleRoute
         if (is_string($handler)) {
             $handlerParts = explode("@", $handler);
             if (count($handlerParts) !== 2) {
-                throw new \Exception("Invalid handler format.");
+                throw new LogicException("Invalid handler format.");
             }
             [$className, $methodName] = $handlerParts;
             $controller = [new $className, $methodName];
@@ -56,7 +57,7 @@ class HandleRoute
         } else if (is_callable($handler)) {
             $controller = $handler;
         } else {
-            throw new \Exception("Invalid handler format.");
+            throw new LogicException("Invalid handler format.");
         }
 
         return $controller;
