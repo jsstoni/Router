@@ -5,9 +5,29 @@ namespace Route;
 use Route\RouteUtils;
 use Route\HandleRoute;
 
+use LogicException;
+
 abstract class Router extends HandleRoute
 {
     use RouteUtils;
+
+    public static function listFolderRoutes($path)
+    {
+        if (file_exists($path) && is_dir($path)) {
+            $files = glob($path . '/*.php');
+            foreach ($files as $file) {
+                if (basename($file) != "web.php") {
+                    self::$handleRoute->currentGroup = '/' . str_replace(".php", "", basename($file));
+                    require_once $file;
+                } else {
+                    self::$handleRoute->currentGroup = "";
+                    require_once $file;
+                }
+            }
+        } else {
+            throw new LogicException("the `routes` folder does not exist in the project");
+        }
+    }
 
     public static function create(string $path, string $base)
     {
@@ -15,31 +35,6 @@ abstract class Router extends HandleRoute
         self::$handleRoute = new HandleRoute($path, $base);
         $routesPath = $path . "/routes/";
         self::listFolderRoutes($routesPath);
-    }
-
-    public static function get(String $path, $handler, ...$middleware)
-    {
-        self::$handleRoute->addRoute('GET', $path, $handler, $middleware);
-    }
-
-    public static function post(String $path, $handler, ...$middleware)
-    {
-        self::$handleRoute->addRoute('POST', $path, $handler, $middleware);
-    }
-
-    public static function patch(String $path, $handler, ...$middleware)
-    {
-        self::$handleRoute->addRoute('PATCH', $path, $handler, $middleware);
-    }
-
-    public static function put(String $path, $handler, ...$middleware)
-    {
-        self::$handleRoute->addRoute('PUT', $path, $handler, $middleware);
-    }
-
-    public static function delete(String $path, $handler, ...$middleware)
-    {
-        self::$handleRoute->addRoute('DELETE', $path, $handler, $middleware);
     }
 
     public static function __callStatic($name, $arguments)
