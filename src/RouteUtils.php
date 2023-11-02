@@ -10,7 +10,7 @@ trait RouteUtils
 
     public static function prefix($name)
     {
-        self::$handleRoute->currentGroup = $name;
+        self::$handleRoute->currentGroup = '/' . trim($name, '/');
         return self::$handleRoute;
     }
 
