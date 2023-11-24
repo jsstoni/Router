@@ -14,7 +14,7 @@ class Response
     public function __construct()
     {
         $this->pathToView = BASE_PATH;
-        $pathViews = $this->pathToView . "/app/views";
+        $pathViews = $this->pathToView . "/resources/views";
         if (is_dir($pathViews)) {
             $this->tplEngie = new Engine($pathViews);
             $this->tplEngie->loadExtension(new Asset($this->pathToView . "/public/", false));
