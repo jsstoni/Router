@@ -8,15 +8,15 @@ use LogicException;
 
 class HandleRoute
 {
-    protected $routes = [];
-    public $currentGroup = '';
-    public $main = '/';
-    public $path_main;
+    protected array $routes = [];
+    protected string $currentGroup;
+    protected string $main = '/';
+    protected Response $response;
 
-    public function __construct(string $dir, $base)
+    public function __construct(string $base)
     {
+        $this->response = new Response();
         $this->main = $base;
-        $this->path_main = $dir;
     }
 
     public function group(callable $cb): void
@@ -43,7 +43,7 @@ class HandleRoute
         ];
     }
 
-    private function typeHandler($handler)
+    private function typeHandler(string|array|callable $handler)
     {
         if (is_string($handler)) {
             $handlerParts = explode("@", $handler);
@@ -65,11 +65,10 @@ class HandleRoute
 
     public function dispatch(string $method, string $url)
     {
-        $response = new Response();
         $urlParts = parse_url($url);
         $pathWithQuery = $urlParts['path'] . (isset($urlParts['query']) ? '?' . $urlParts['query'] : '');
         if ($method === 'OPTIONS') { //preflight fix
-            $response->status(200);
+            $this->response->status(200);
             exit();
         }
         foreach ($this->routes as $route) {
@@ -81,7 +80,7 @@ class HandleRoute
                     $handleRequest = new HandleRequest();
                     $params = array_intersect_key($matches, array_flip(array_filter(array_keys($matches), 'is_string')));
                     $handleRequest->setParams($params);
-                    $request = $handleRequest->getParams();
+                    $request = $handleRequest->getRequest();
                     foreach ($route['middleware'] as $middleware) {
                         $midlePart = explode(":", $middleware);
                         $className = $midlePart[0];
@@ -95,11 +94,10 @@ class HandleRoute
                             }
                         }
                     }
-                    return call_user_func($this->typeHandler($route['handler']), $request, $response);
+                    return call_user_func($this->typeHandler($route['handler']), $request, $this->response);
                 }
             }
         }
-        $response->status(404);
-        exit("404 Not Found");
+        $this->response->status(404)->send("404 Not Found");
     }
 }

@@ -6,10 +6,10 @@ use Route\Helper;
 
 class HandleRequest
 {
-    private $params = array();
-    private $contentType;
-    private $method;
-    private $request;
+    private array $params = array();
+    private string $contentType;
+    private string $method;
+    private Request $request;
 
     public function __construct()
     {
@@ -77,32 +77,32 @@ class HandleRequest
         }
     }
 
-    public function body()
+    public function getBody()
     {
         return json_decode(json_encode($this->params['body'] ?? []));
     }
 
-    public function query()
+    public function getQuery()
     {
         return json_decode(json_encode($this->params['query'] ?? []));
     }
 
-    public function params()
+    public function getParams()
     {
         return json_decode(json_encode($this->params['params'] ?? []));
     }
 
-    public function files()
+    public function getFiles()
     {
         return json_decode(json_encode($this->params['files'] ?? []));
     }
 
-    public function getParams()
+    public function getRequest()
     {
-        $this->request->body = $this->body();
-        $this->request->query = $this->query();
-        $this->request->params = $this->params();
-        $this->request->files = $this->files();
+        $this->request->body = $this->getBody();
+        $this->request->query = $this->getQuery();
+        $this->request->params = $this->getParams();
+        $this->request->files = $this->getFiles();
         $this->request->authorization = $this->getToken();
         return $this->request;
     }

@@ -8,8 +8,8 @@ use LogicException;
 
 class Response
 {
-    private $tplEngie;
-    private $pathToView;
+    private Engine $tplEngie;
+    private string $pathToView;
 
     public function __construct()
     {

@@ -32,7 +32,7 @@ abstract class Router extends HandleRoute
     public static function create(string $path, string $base)
     {
         define("BASE_PATH", $path);
-        self::$handleRoute = new HandleRoute($path, $base);
+        self::$handleRoute = new HandleRoute($base);
         $routesPath = $path . "/routes/";
         self::listFolderRoutes($routesPath);
     }

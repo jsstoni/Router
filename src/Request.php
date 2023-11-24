@@ -2,11 +2,11 @@
 
 namespace Route;
 
-class Request
+final class Request
 {
-    public $body;
-    public $query;
-    public $params;
-    public $files;
-    public $authorization;
+    public array $body;
+    public array $query;
+    public array $params;
+    public array $files;
+    public ?string $authorization;
 }

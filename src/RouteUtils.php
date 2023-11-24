@@ -2,11 +2,9 @@
 
 namespace Route;
 
-use LogicException;
-
 trait RouteUtils
 {
-    public static $handleRoute;
+    protected static $handleRoute;
 
     public static function prefix($name)
     {
@@ -37,10 +35,5 @@ trait RouteUtils
     public static function delete(String $path, $handler, ...$middleware)
     {
         self::$handleRoute->addRoute('DELETE', $path, $handler, $middleware);
-    }
-
-    public static function add($cb = null)
-    {
-        require_once $cb;
     }
 }
