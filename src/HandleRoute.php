@@ -45,15 +45,13 @@ class HandleRoute
 
     private function typeHandler(string | array | callable $handler)
     {
-        if (is_string($handler)) {
-            $handlerParts = explode("@", $handler);
+        if (is_string($handler) || (is_array($handler) && count($handler) === 2)) {
+            $handlerParts = is_string($handler) ? explode("@", $handler) : $handler;
             if (count($handlerParts) !== 2) {
                 throw new LogicException("Invalid handler format.");
             }
             [$className, $methodName] = $handlerParts;
             $controller = [new $className, $methodName];
-        } else if (is_array($handler) && count($handler) === 2) {
-            $controller = $handler;
         } else if (is_callable($handler)) {
             $controller = $handler;
         } else {
@@ -62,6 +60,7 @@ class HandleRoute
 
         return $controller;
     }
+
 
     public function dispatch(string $method, string $url)
     {
@@ -90,7 +89,7 @@ class HandleRoute
                             $middleInstance = new $classMiddleware();
                             $call = call_user_func(array($middleInstance, $methodName), $request);
                             if (isset($call['error'])) {
-                                exit(json_encode($call));
+                                throw new \RuntimeException(json_encode($call));
                             }
                         }
                     }

@@ -49,12 +49,19 @@ class Helper
 
     public static function JWT_decode($token)
     {
+        $decodedToken = self::baseDecode($token);
+
+        if (!is_string($decodedToken)) {
+            http_response_code(401);
+            return null;
+        }
+
         try {
-            $data = JWT::decode(self::baseDecode($token), new Key(self::$privateKey, 'HS256'));
+            $data = JWT::decode($decodedToken, new Key(self::$privateKey, 'HS256'));
             return $data;
         } catch (\Exception $th) {
             http_response_code(401);
-            exit();
+            return null;
         }
     }
 }

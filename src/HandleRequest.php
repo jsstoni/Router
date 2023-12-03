@@ -21,7 +21,12 @@ class HandleRequest
         if ($this->contentType === "application/x-www-form-urlencoded" || strpos($this->contentType, 'multipart/form-data') !== false) {
             $this->processRequest($body);
         } else if ($this->contentType === 'application/json') {
-            $this->params['body'] = json_decode($body, true);
+            if ($body !== null) {
+                $this->params['body'] = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Error decoding JSON: ' . json_last_error_msg());
+                }
+            }
         }
     }
 
@@ -66,14 +71,10 @@ class HandleRequest
         }
     }
 
-    public function setParams(array $params, string $k = '')
+    public function setParams(array $params)
     {
-        if (is_array($params)) {
-            foreach ($params as $key => $value) {
-                $this->params['params'][$key] = $value;
-            }
-        } else {
-            $this->params['params'][$k] = $params;
+        foreach ($params as $key => $value) {
+            $this->params['params'][$key] = $value;
         }
     }
 
@@ -103,7 +104,10 @@ class HandleRequest
         $this->request->query = $this->getQuery();
         $this->request->params = $this->getParams();
         $this->request->files = $this->getFiles();
-        $this->request->authorization = $this->getToken();
+        $token = $this->getToken();
+        if ($token !== null) {
+            $this->request->authorization = $this->getToken();
+        }
         return $this->request;
     }
 }
