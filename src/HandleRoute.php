@@ -43,7 +43,7 @@ class HandleRoute
         ];
     }
 
-    private function typeHandler(string|array|callable $handler)
+    private function typeHandler(string | array | callable $handler)
     {
         if (is_string($handler)) {
             $handlerParts = explode("@", $handler);
