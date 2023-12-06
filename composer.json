@@ -20,7 +20,7 @@
     }
   ],
   "require": {
-    "php": "^7.0",
+    "php": "^8.1",
     "firebase/php-jwt": "^6.9",
     "league/plates": "^3.5"
   },
@@ -28,5 +28,9 @@
     "psr-4": {
       "Route\\": "src/"
     }
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true
   }
 }
