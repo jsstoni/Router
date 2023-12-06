@@ -2,8 +2,7 @@
 
 namespace Route;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Firebase\JWT\{JWT, Key};
 
 class Helper
 {

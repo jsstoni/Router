@@ -2,8 +2,7 @@
 
 namespace Route;
 
-use Route\HandleRequest;
-use Route\Response;
+use Route\{HandleRequest, Response};
 use LogicException;
 
 class HandleRoute
@@ -61,42 +60,66 @@ class HandleRoute
         return $controller;
     }
 
-
-    public function dispatch(string $method, string $url)
+    private function applyMiddleware(string $middleware, $request)
     {
-        $urlParts = parse_url($url);
-        $pathWithQuery = $urlParts['path'] . (isset($urlParts['query']) ? '?' . $urlParts['query'] : '');
-        if ($method === 'OPTIONS') { //preflight fix
-            $this->response->status(200);
-            exit();
+        list($className, $methodName) = explode(":", $middleware);
+        $classMiddleware = "Middleware\\{$className}";
+
+        if (class_exists($classMiddleware)) {
+            $middlewareInstance = new $classMiddleware();
+            $result = $middlewareInstance->{$methodName}($request);
+
+            if (isset($result['error'])) {
+                throw new \LogicException(json_encode($result));
+            }
         }
+    }
+
+    private function processRoutes(string $method, $pathWithQuery)
+    {
         foreach ($this->routes as $route) {
             if ($route['method'] == $method) {
                 $main = $this->main === '/' ? trim($this->main, '/') : $this->main;
                 $path = rtrim($main . $route['path'], '/');
                 $pattern = '#^' . preg_replace('#/:([^/]+)#', '/(?<$1>[^/]+)', $path) . '(/?)?(\?.*)?$#';
                 if (preg_match($pattern, $pathWithQuery, $matches)) {
-                    $handleRequest = new HandleRequest();
-                    $params = array_intersect_key($matches, array_flip(array_filter(array_keys($matches), 'is_string')));
-                    $handleRequest->setParams($params);
-                    $request = $handleRequest->getRequest();
-                    foreach ($route['middleware'] as $middleware) {
-                        $midlePart = explode(":", $middleware);
-                        $className = $midlePart[0];
-                        $methodName = $midlePart[1];
-                        $classMiddleware = "Middleware\\{$className}";
-                        if (class_exists($classMiddleware)) {
-                            $middleInstance = new $classMiddleware();
-                            $call = call_user_func(array($middleInstance, $methodName), $request);
-                            if (isset($call['error'])) {
-                                throw new \RuntimeException(json_encode($call));
-                            }
-                        }
-                    }
-                    return call_user_func($this->typeHandler($route['handler']), $request, $this->response);
+                    $this->handleRequest($route, $matches);
+                    return;
                 }
             }
         }
-        $this->response->status(404)->send("404 Not Found");
+        throw new \LogicException("Router not found");
+    }
+
+    private function handleRequest(array $route, array $matches)
+    {
+        $handleRequest = new HandleRequest();
+        $params = array_intersect_key($matches, array_flip(array_filter(array_keys($matches), 'is_string')));
+        $handleRequest->setParams($params);
+        $request = $handleRequest->getRequest();
+        foreach ($route['middleware'] as $middleware) {
+            $this->applyMiddleware($middleware, $request);
+        }
+        $this->executeHandler($route['handler'], $request);
+    }
+
+    private function executeHandler($handler, $request)
+    {
+        $handlerFunction = $this->typeHandler($handler);
+        return $handlerFunction($request, $this->response);
+    }
+
+    public function dispatch(string $method, string $url)
+    {
+        $urlParts = parse_url($url);
+        $pathWithQuery = $urlParts['path'] . (isset($urlParts['query']) ? '?' . $urlParts['query'] : '');
+        if ($method === 'OPTIONS') { //preflight fix
+            return $this->response->status(200);
+        }
+        try {
+            $this->processRoutes($method, $pathWithQuery);
+        } catch (\LogicException $error) {
+            $this->response->status(404)->send("404 Not Found");
+        }
     }
 }

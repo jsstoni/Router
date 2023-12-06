@@ -6,7 +6,7 @@ use Route\Helper;
 
 class HandleRequest
 {
-    private array $params = array();
+    private array $params = [];
     private string $contentType;
     private string $method;
     private Request $request;
@@ -14,10 +14,15 @@ class HandleRequest
     public function __construct()
     {
         $this->request = new Request();
-        $body = file_get_contents('php://input') ?: null;
         $this->contentType = $_SERVER['CONTENT_TYPE'] ?? '';
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->params['query'] = $_GET ?? [];
+        $this->handleContentType();
+    }
+
+    private function handleContentType()
+    {
+        $body = file_get_contents('php://input') ?: null;
         if ($this->contentType === "application/x-www-form-urlencoded" || strpos($this->contentType, 'multipart/form-data') !== false) {
             $this->processRequest($body);
         } else if ($this->contentType === 'application/json') {
@@ -30,7 +35,7 @@ class HandleRequest
         }
     }
 
-    public function getToken()
+    private function getToken()
     {
         $headers = apache_request_headers();
         if (isset($headers['Authorization'])) {

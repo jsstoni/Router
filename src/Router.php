@@ -2,8 +2,7 @@
 
 namespace Route;
 
-use Route\RouteUtils;
-use Route\HandleRoute;
+use Route\{RouteUtils, HandleRoute};
 
 use LogicException;
 
