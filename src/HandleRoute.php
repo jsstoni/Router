@@ -50,8 +50,8 @@ class HandleRoute
                 throw new LogicException("Invalid handler format.");
             }
             [$className, $methodName] = $handlerParts;
-            $controller = [new $className, $methodName];
-        } else if (is_callable($handler)) {
+            $controller = [new $className(), $methodName];
+        } elseif (is_callable($handler)) {
             $controller = $handler;
         } else {
             throw new LogicException("Invalid handler format.");

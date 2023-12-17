@@ -17,7 +17,7 @@ class Helper
     public static function baseDecode($token)
     {
         try {
-            return base64_decode(str_pad(strtr($token, '-_', '+/'), strlen($token) % 4, '=', STR_PAD_RIGHT));
+            return base64_decode(str_pad(strtr($token, '-_', '+/'), strlen($token) % 4, '=', STR_PAD_RIGHT), true);
         } catch (\Exception $error) {
             http_response_code(501);
             exit();

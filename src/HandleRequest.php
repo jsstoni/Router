@@ -25,7 +25,7 @@ class HandleRequest
         $body = file_get_contents('php://input') ?: null;
         if ($this->contentType === "application/x-www-form-urlencoded" || strpos($this->contentType, 'multipart/form-data') !== false) {
             $this->processRequest($body);
-        } else if ($this->contentType === 'application/json') {
+        } elseif ($this->contentType === 'application/json') {
             if ($body !== null) {
                 $this->params['body'] = json_decode($body, true);
                 if (json_last_error() !== JSON_ERROR_NONE) {
